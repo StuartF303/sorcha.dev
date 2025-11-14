@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get started with Sorcha - installation, quickstart guide, and API documentation">
+    <title>Documentation - Sorcha Data Flow Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span>Sorcha</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="features.html">Features</a></li>
+                    <li><a href="use-cases.html">Use Cases</a></li>
+                    <li><a href="docs.html" class="active">Documentation</a></li>
+                    <li><a href="https://github.com/StuartF303/Sorcha" target="_blank" class="btn-primary">GitHub</a></li>
+                </ul>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Documentation</h1>
+            <p>Everything you need to get started with Sorcha</p>
+        </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="docs-section">
+        <div class="container">
+            <div class="docs-layout">
+                <aside class="docs-sidebar">
+                    <nav class="docs-nav">
+                        <h4>Getting Started</h4>
+                        <ul>
+                            <li><a href="#quick-start">Quick Start</a></li>
+                            <li><a href="#installation">Installation</a></li>
+                            <li><a href="#first-blueprint">First Blueprint</a></li>
+                        </ul>
+
+                        <h4>Core Concepts</h4>
+                        <ul>
+                            <li><a href="#blueprints">Blueprints</a></li>
+                            <li><a href="#sources">Data Sources</a></li>
+                            <li><a href="#transforms">Transforms</a></li>
+                            <li><a href="#routing">Routing</a></li>
+                            <li><a href="#cryptography">Cryptography</a></li>
+                        </ul>
+
+                        <h4>Advanced</h4>
+                        <ul>
+                            <li><a href="#deployment">Deployment</a></li>
+                            <li><a href="#monitoring">Monitoring</a></li>
+                            <li><a href="#api-reference">API Reference</a></li>
+                        </ul>
+
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="https://github.com/StuartF303/Sorcha" target="_blank">GitHub Repository</a></li>
+                            <li><a href="https://github.com/StuartF303/Sorcha/issues" target="_blank">Report Issues</a></li>
+                            <li><a href="https://github.com/StuartF303/Sorcha/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <main class="docs-content">
+                    <!-- Quick Start -->
+                    <article id="quick-start" class="doc-article">
+                        <h2>Quick Start</h2>
+                        <p>
+                            Get up and running with Sorcha in under 5 minutes. This guide will walk you
+                            through creating your first secure data flow blueprint.
+                        </p>
+
+                        <h3>Prerequisites</h3>
+                        <ul>
+                            <li>.NET 10 SDK or later</li>
+                            <li>Visual Studio 2024 or VS Code with C# extension</li>
+                            <li>Basic understanding of C# and async programming</li>
+                        </ul>
+                    </article>
+
+                    <!-- Installation -->
+                    <article id="installation" class="doc-article">
+                        <h2>Installation</h2>
+
+                        <h3>Using .NET CLI</h3>
+                        <p>Install the Sorcha blueprint execution engine via NuGet:</p>
+                        <div class="code-block">
+                            <pre><code>dotnet new console -n MyDataFlow
+cd MyDataFlow
+dotnet add package Sorcha.Core
+dotnet add package Sorcha.Cryptography
+dotnet add package Sorcha.Aspire</code></pre>
+                        </div>
+
+                        <h3>Using Visual Studio</h3>
+                        <ol>
+                            <li>Create a new .NET Console Application</li>
+                            <li>Right-click project → Manage NuGet Packages</li>
+                            <li>Search for "Sorcha.Core" and install</li>
+                            <li>Install additional packages as needed (Sorcha.Cryptography, Sorcha.Aspire)</li>
+                        </ol>
+
+                        <h3>Verify Installation</h3>
+                        <div class="code-block">
+                            <pre><code>dotnet list package | grep Sorcha</code></pre>
+                        </div>
+                        <p>You should see the Sorcha packages listed with their versions.</p>
+                    </article>
+
+                    <!-- First Blueprint -->
+                    <article id="first-blueprint" class="doc-article">
+                        <h2>Your First Blueprint</h2>
+                        <p>
+                            Let's create a simple data flow that reads data from a source, validates it,
+                            and writes it to a destination with cryptographic signing.
+                        </p>
+
+                        <h3>Step 1: Create the Blueprint</h3>
+                        <div class="code-block">
+                            <pre><code>using Sorcha.Core;
+using Sorcha.Cryptography;
+
+var blueprint = Blueprint.Create("HelloSorcha")
+    // Define your data source
+    .AddSource&lt;string&gt;(config => config
+        .FromConsole())
+
+    // Transform the data
+    .Transform&lt;string, string&gt;(data =>
+        data.ToUpper())
+
+    // Sign the data
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.ED25519)
+        .UsingKey("my-signing-key"))
+
+    // Output to destination
+    .ToDestination&lt;string&gt;(config => config
+        .ToConsole())
+
+    .Build();</code></pre>
+                        </div>
+
+                        <h3>Step 2: Execute the Blueprint</h3>
+                        <div class="code-block">
+                            <pre><code>// Execute the blueprint
+await blueprint.ExecuteAsync();
+
+Console.WriteLine("Blueprint executed successfully!");</code></pre>
+                        </div>
+
+                        <h3>Step 3: Run Your Application</h3>
+                        <div class="code-block">
+                            <pre><code>dotnet run</code></pre>
+                        </div>
+
+                        <p>
+                            Enter some text, and you'll see it transformed to uppercase and
+                            cryptographically signed before being output.
+                        </p>
+                    </article>
+
+                    <!-- Blueprints -->
+                    <article id="blueprints" class="doc-article">
+                        <h2>Understanding Blueprints</h2>
+                        <p>
+                            Blueprints are the core concept in Sorcha. They define the entire data flow
+                            pipeline from source to destination, including all transformations, validations,
+                            and security measures.
+                        </p>
+
+                        <h3>Blueprint Lifecycle</h3>
+                        <ol>
+                            <li><strong>Definition:</strong> Create blueprint using fluent API</li>
+                            <li><strong>Validation:</strong> Sorcha validates the blueprint structure</li>
+                            <li><strong>Compilation:</strong> Blueprint is compiled into executable code</li>
+                            <li><strong>Execution:</strong> Data flows through the defined pipeline</li>
+                            <li><strong>Monitoring:</strong> Track execution with built-in observability</li>
+                        </ol>
+
+                        <h3>Blueprint Components</h3>
+                        <ul>
+                            <li><strong>Sources:</strong> Where data enters the pipeline</li>
+                            <li><strong>Transforms:</strong> Operations that modify data</li>
+                            <li><strong>Validators:</strong> Ensure data meets requirements</li>
+                            <li><strong>Routers:</strong> Direct data to different destinations</li>
+                            <li><strong>Destinations:</strong> Where data exits the pipeline</li>
+                            <li><strong>Security:</strong> Cryptographic operations and access control</li>
+                        </ul>
+                    </article>
+
+                    <!-- Data Sources -->
+                    <article id="sources" class="doc-article">
+                        <h2>Data Sources</h2>
+                        <p>
+                            Sorcha supports multiple data source types for receiving data into your pipeline.
+                        </p>
+
+                        <h3>Built-in Sources</h3>
+                        <div class="source-types">
+                            <div class="source-type">
+                                <h4>Queue Sources</h4>
+                                <div class="code-block">
+                                    <pre><code>.AddSource&lt;MyData&gt;(config => config
+    .FromQueue("my-queue")
+    .WithBatchSize(100)
+    .WithPolling(TimeSpan.FromSeconds(5)))</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="source-type">
+                                <h4>Database Sources</h4>
+                                <div class="code-block">
+                                    <pre><code>.AddSource&lt;CustomerData&gt;(config => config
+    .FromDatabase("CustomerDB")
+    .WithQuery("SELECT * FROM Customers WHERE UpdatedAt > @lastRun")
+    .WithPolling(TimeSpan.FromMinutes(15)))</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="source-type">
+                                <h4>HTTP/REST Sources</h4>
+                                <div class="code-block">
+                                    <pre><code>.AddSource&lt;ApiResponse&gt;(config => config
+    .FromHttpEndpoint("https://api.example.com/data")
+    .WithAuthentication(auth => auth.BearerToken(token))
+    .WithPolling(TimeSpan.FromMinutes(10)))</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="source-type">
+                                <h4>File Sources</h4>
+                                <div class="code-block">
+                                    <pre><code>.AddSource&lt;FileData&gt;(config => config
+    .FromFileSystem("/data/incoming")
+    .WithPattern("*.json")
+    .WatchForChanges())</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Cryptography -->
+                    <article id="cryptography" class="doc-article">
+                        <h2>Cryptographic Security</h2>
+                        <p>
+                            Sorcha provides built-in cryptographic capabilities to secure your data flows.
+                        </p>
+
+                        <h3>Digital Signatures</h3>
+                        <p>Sign data to ensure authenticity and detect tampering:</p>
+                        <div class="code-block">
+                            <pre><code>.Sign(signature => signature
+    .WithAlgorithm(CryptoAlgorithm.ED25519)  // or NISTP256, RSA4096
+    .UsingKey("my-signing-key")
+    .IncludeTimestamp()
+    .IncludeNonce())</code></pre>
+                        </div>
+
+                        <h3>Key Management</h3>
+                        <p>Generate and manage cryptographic keys:</p>
+                        <div class="code-block">
+                            <pre><code>using Sorcha.Cryptography;
+
+// Generate a new key
+var keyManager = new KeyManager();
+var key = await keyManager.GenerateKeyAsync(
+    algorithm: CryptoAlgorithm.ED25519,
+    keyId: "my-signing-key");
+
+// Store securely
+await keyManager.StoreKeyAsync(key,
+    storageType: KeyStorageType.AzureKeyVault);</code></pre>
+                        </div>
+
+                        <h3>Signature Verification</h3>
+                        <p>Verify signatures before processing data:</p>
+                        <div class="code-block">
+                            <pre><code>.Validate&lt;SignedData&gt;(validation => validation
+    .VerifySignature()
+    .WithPublicKey("partner-public-key")
+    .RejectIfInvalid())</code></pre>
+                        </div>
+
+                        <h3>Supported Algorithms</h3>
+                        <table class="docs-table">
+                            <thead>
+                                <tr>
+                                    <th>Algorithm</th>
+                                    <th>Type</th>
+                                    <th>Security Level</th>
+                                    <th>Best For</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ED25519</td>
+                                    <td>EdDSA</td>
+                                    <td>256-bit</td>
+                                    <td>High performance, modern applications</td>
+                                </tr>
+                                <tr>
+                                    <td>NISTP256</td>
+                                    <td>ECDSA</td>
+                                    <td>128-bit</td>
+                                    <td>Regulatory compliance (FIPS)</td>
+                                </tr>
+                                <tr>
+                                    <td>RSA4096</td>
+                                    <td>RSA</td>
+                                    <td>4096-bit</td>
+                                    <td>Maximum security, legacy compatibility</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </article>
+
+                    <!-- Deployment -->
+                    <article id="deployment" class="doc-article">
+                        <h2>Deployment</h2>
+                        <p>
+                            Sorcha blueprints can be deployed in various environments, from local development
+                            to cloud-native production scenarios.
+                        </p>
+
+                        <h3>Local Development</h3>
+                        <div class="code-block">
+                            <pre><code>dotnet run --project MyDataFlow.csproj</code></pre>
+                        </div>
+
+                        <h3>Docker Deployment</h3>
+                        <div class="code-block">
+                            <pre><code># Build container
+docker build -t my-dataflow:latest .
+
+# Run container
+docker run -d \
+  --name my-dataflow \
+  -e SORCHA_CONFIG=/config/blueprint.json \
+  -v ./config:/config \
+  my-dataflow:latest</code></pre>
+                        </div>
+
+                        <h3>Kubernetes Deployment</h3>
+                        <div class="code-block">
+                            <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sorcha-blueprint
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sorcha-blueprint
+  template:
+    metadata:
+      labels:
+        app: sorcha-blueprint
+    spec:
+      containers:
+      - name: blueprint-executor
+        image: my-dataflow:latest
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        - name: SORCHA_BLUEPRINT_PATH
+          value: /config/blueprint.json
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"</code></pre>
+                        </div>
+
+                        <h3>.NET Aspire Deployment</h3>
+                        <p>Deploy with .NET Aspire for cloud-native orchestration:</p>
+                        <div class="code-block">
+                            <pre><code>var builder = DistributedApplication.CreateBuilder(args);
+
+var blueprint = builder.AddProject&lt;Projects.MyDataFlow&gt;("dataflow")
+    .WithReplicas(3)
+    .WithEnvironment("SORCHA_MODE", "production");
+
+builder.Build().Run();</code></pre>
+                        </div>
+                    </article>
+
+                    <!-- API Reference -->
+                    <article id="api-reference" class="doc-article">
+                        <h2>API Reference</h2>
+                        <p>
+                            Complete API documentation is available in the
+                            <a href="https://github.com/StuartF303/Sorcha" target="_blank">GitHub repository</a>.
+                        </p>
+
+                        <h3>Core Namespaces</h3>
+                        <ul>
+                            <li><code>Sorcha.Core</code> - Blueprint engine and execution</li>
+                            <li><code>Sorcha.Cryptography</code> - Cryptographic operations</li>
+                            <li><code>Sorcha.Aspire</code> - Cloud-native integration</li>
+                            <li><code>Sorcha.Schema</code> - Schema management</li>
+                            <li><code>Sorcha.Gateway</code> - YARP-based API gateway</li>
+                        </ul>
+
+                        <h3>Common Methods</h3>
+                        <div class="api-methods">
+                            <div class="api-method">
+                                <code>Blueprint.Create(string name)</code>
+                                <p>Creates a new blueprint with the specified name</p>
+                            </div>
+
+                            <div class="api-method">
+                                <code>.AddSource&lt;T&gt;(Action&lt;SourceConfig&gt; config)</code>
+                                <p>Adds a data source to the blueprint</p>
+                            </div>
+
+                            <div class="api-method">
+                                <code>.Transform&lt;TIn, TOut&gt;(Func&lt;TIn, TOut&gt; transform)</code>
+                                <p>Applies a transformation to the data</p>
+                            </div>
+
+                            <div class="api-method">
+                                <code>.Sign(Action&lt;SignatureConfig&gt; config)</code>
+                                <p>Adds cryptographic signing to the pipeline</p>
+                            </div>
+
+                            <div class="api-method">
+                                <code>.Build()</code>
+                                <p>Compiles and returns the executable blueprint</p>
+                            </div>
+
+                            <div class="api-method">
+                                <code>await blueprint.ExecuteAsync()</code>
+                                <p>Executes the blueprint asynchronously</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Next Steps -->
+                    <article class="doc-article">
+                        <h2>Next Steps</h2>
+                        <div class="next-steps-grid">
+                            <div class="next-step-card">
+                                <h3>Explore Use Cases</h3>
+                                <p>See real-world blueprint examples for different industries</p>
+                                <a href="use-cases.html" class="btn-secondary">View Use Cases</a>
+                            </div>
+
+                            <div class="next-step-card">
+                                <h3>Learn More Features</h3>
+                                <p>Discover all the capabilities Sorcha offers</p>
+                                <a href="features.html" class="btn-secondary">Explore Features</a>
+                            </div>
+
+                            <div class="next-step-card">
+                                <h3>Join the Community</h3>
+                                <p>Contribute to the project and get help from others</p>
+                                <a href="https://github.com/StuartF303/Sorcha" target="_blank" class="btn-secondary">GitHub</a>
+                            </div>
+                        </div>
+                    </article>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Sorcha</h4>
+                    <p>Secure data flow orchestration platform</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="docs.html">Documentation</a></li>
+                        <li><a href="use-cases.html">Use Cases</a></li>
+                        <li><a href="features.html">Features</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/StuartF303/Sorcha" target="_blank">GitHub</a></li>
+                        <li><a href="https://github.com/StuartF303/Sorcha/issues" target="_blank">Issues</a></li>
+                        <li><a href="https://github.com/StuartF303/Sorcha/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">License</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sorcha Project. Built with .NET 10.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

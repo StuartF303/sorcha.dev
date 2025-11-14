@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-world use cases and blueprint examples for Sorcha data flow orchestration">
+    <title>Use Cases - Sorcha Data Flow Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span>Sorcha</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="features.html">Features</a></li>
+                    <li><a href="use-cases.html" class="active">Use Cases</a></li>
+                    <li><a href="docs.html">Documentation</a></li>
+                    <li><a href="https://github.com/StuartF303/Sorcha" target="_blank" class="btn-primary">GitHub</a></li>
+                </ul>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Use Cases & Blueprint Examples</h1>
+            <p>See how Sorcha secures data flows across industries</p>
+        </div>
+    </section>
+
+    <!-- Financial Services -->
+    <section id="financial" class="use-case-detail">
+        <div class="container">
+            <div class="use-case-header">
+                <div class="use-case-icon-large">🏦</div>
+                <h2>Financial Services & Payment Processing</h2>
+                <p class="lead">
+                    Secure payment processing pipelines with cryptographic validation, fraud detection,
+                    and tamper-proof audit trails for PCI-DSS and regulatory compliance.
+                </p>
+            </div>
+
+            <div class="use-case-content">
+                <div class="challenge-solution">
+                    <div class="challenge">
+                        <h3>The Challenge</h3>
+                        <p>
+                            Financial institutions process millions of transactions daily, requiring:
+                        </p>
+                        <ul>
+                            <li>End-to-end transaction security and non-repudiation</li>
+                            <li>Real-time fraud detection and prevention</li>
+                            <li>Immutable audit trails for compliance</li>
+                            <li>Multi-party transaction validation</li>
+                            <li>PCI-DSS and SOX compliance</li>
+                        </ul>
+                    </div>
+
+                    <div class="solution">
+                        <h3>The Sorcha Solution</h3>
+                        <p>
+                            Sorcha provides cryptographically secured payment pipelines with:
+                        </p>
+                        <ul>
+                            <li>Digital signatures on every transaction</li>
+                            <li>Real-time validation against fraud patterns</li>
+                            <li>Immutable, cryptographically signed audit logs</li>
+                            <li>Multi-signature authorization workflows</li>
+                            <li>Automated compliance reporting</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="blueprint-example">
+                    <h3>Blueprint Example: Secure Payment Processing</h3>
+                    <div class="code-block">
+                        <pre><code>var paymentPipeline = Blueprint.Create("SecurePaymentProcessing")
+    // Receive payment requests
+    .AddSource&lt;PaymentRequest&gt;(config => config
+        .FromQueue("payment-requests")
+        .WithDeduplication())
+
+    // Validate payment data
+    .Validate&lt;PaymentRequest&gt;(validation => validation
+        .AgainstSchema("payment-schema-v2")
+        .RequireFields("amount", "currency", "merchantId")
+        .CheckBusinessRules())
+
+    // Fraud detection
+    .Transform&lt;PaymentRequest, ValidatedPayment&gt;(payment =>
+        payment
+            .CheckFraudScore()
+            .ValidateCardDetails()
+            .VerifyMerchantStatus())
+
+    // Route based on fraud score
+    .Route(routing => routing
+        .When(p => p.FraudScore > 0.8)
+            .ToDestination("fraud-review-queue")
+        .When(p => p.Amount > 10000)
+            .ToDestination("high-value-review")
+        .Otherwise()
+            .Continue())
+
+    // Cryptographic signing
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.ED25519)
+        .UsingKey("payment-processor-key")
+        .IncludeTimestamp()
+        .IncludeNonce())
+
+    // Process payment
+    .Transform&lt;ValidatedPayment, ProcessedPayment&gt;(payment =>
+        payment
+            .AuthorizeWithBank()
+            .CapturePayment()
+            .UpdateMerchantBalance())
+
+    // Create immutable audit log
+    .Audit(audit => audit
+        .LogTransaction()
+        .WithCryptographicProof()
+        .IncludeSensitiveDataHash()
+        .StoreInLedger())
+
+    // Notify stakeholders
+    .Publish(notification => notification
+        .ToCustomer("payment-confirmation")
+        .ToMerchant("sale-notification")
+        .ToCompliance("transaction-record"))
+
+    // Error handling
+    .OnError(error => error
+        .RollbackTransaction()
+        .NotifyAdministrator()
+        .LogWithSeverity(LogLevel.Critical)
+        .RetryWithIdempotency())
+
+    .Build();</code></pre>
+                    </div>
+                </div>
+
+                <div class="benefits">
+                    <h3>Business Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <strong>99.99% Uptime:</strong> Resilient architecture handles peak transaction volumes
+                        </div>
+                        <div class="benefit-item">
+                            <strong>60% Fraud Reduction:</strong> Real-time detection prevents fraudulent transactions
+                        </div>
+                        <div class="benefit-item">
+                            <strong>100% Audit Trail:</strong> Cryptographic proof satisfies auditors and regulators
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Compliance Ready:</strong> PCI-DSS, SOX, and GDPR compliant out-of-the-box
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Healthcare -->
+    <section id="healthcare" class="use-case-detail alt-bg">
+        <div class="container">
+            <div class="use-case-header">
+                <div class="use-case-icon-large">🏥</div>
+                <h2>Healthcare Data Integration</h2>
+                <p class="lead">
+                    HIPAA-compliant patient data workflows with end-to-end encryption, secure inter-system
+                    communication, and complete audit trails.
+                </p>
+            </div>
+
+            <div class="use-case-content">
+                <div class="challenge-solution">
+                    <div class="challenge">
+                        <h3>The Challenge</h3>
+                        <p>
+                            Healthcare organizations need to securely exchange patient data between
+                            EHR systems, labs, imaging centers, and insurance providers while:
+                        </p>
+                        <ul>
+                            <li>Maintaining HIPAA compliance</li>
+                            <li>Ensuring patient privacy and data security</li>
+                            <li>Tracking data access for audit purposes</li>
+                            <li>Validating data integrity across systems</li>
+                            <li>Supporting interoperability (HL7 FHIR)</li>
+                        </ul>
+                    </div>
+
+                    <div class="solution">
+                        <h3>The Sorcha Solution</h3>
+                        <p>
+                            Secure healthcare data exchange with:
+                        </p>
+                        <ul>
+                            <li>End-to-end encryption of PHI/PII data</li>
+                            <li>Role-based access control with cryptographic keys</li>
+                            <li>Immutable audit logs of all data access</li>
+                            <li>Digital signatures for data authenticity</li>
+                            <li>FHIR-compliant data transformation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="blueprint-example">
+                    <h3>Blueprint Example: Patient Data Exchange</h3>
+                    <div class="code-block">
+                        <pre><code>var healthDataPipeline = Blueprint.Create("SecurePatientDataExchange")
+    // Receive patient data from EHR
+    .AddSource&lt;PatientRecord&gt;(config => config
+        .FromHL7Feed("ehr-system")
+        .WithEncryption(EncryptionType.AES256))
+
+    // Transform to FHIR format
+    .Transform&lt;PatientRecord, FhirPatient&gt;(record =>
+        record
+            .ConvertToFhir()
+            .ValidateAgainstFhirSchema()
+            .NormalizeDemographics())
+
+    // Apply privacy controls
+    .Transform&lt;FhirPatient, SecurePatient&gt;(patient =>
+        patient
+            .RedactSensitiveFields()
+            .ApplyConsentRules()
+            .GenerateDeidentificationHash())
+
+    // Cryptographic signing for data integrity
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.RSA4096)
+        .UsingKey("healthcare-provider-key")
+        .IncludePatientConsent())
+
+    // Route to appropriate systems
+    .Route(routing => routing
+        .When(p => p.HasLabOrders)
+            .ToDestination("lab-system")
+        .When(p => p.HasImagingOrders)
+            .ToDestination("imaging-system")
+        .When(p => p.RequiresInsuranceAuth)
+            .ToDestination("insurance-gateway")
+        .Always()
+            .ToDestination("central-health-record"))
+
+    // Audit every access
+    .Audit(audit => audit
+        .LogDataAccess()
+        .RecordUserIdentity()
+        .RecordPurposeOfUse()
+        .WithCryptographicProof()
+        .StoreForHIPAACompliance(years: 7))
+
+    // Secure notification
+    .Publish(notification => notification
+        .ToPatientPortal("encrypted-notification")
+        .ToCareCordinator("care-team-update"))
+
+    // Error handling
+    .OnError(error => error
+        .QuarantineData()
+        .NotifyPrivacyOfficer()
+        .LogSecurityEvent()
+        .EscalateIfCritical())
+
+    .Build();</code></pre>
+                    </div>
+                </div>
+
+                <div class="benefits">
+                    <h3>Business Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <strong>HIPAA Compliant:</strong> Built-in controls meet all HIPAA requirements
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Zero Data Breaches:</strong> Cryptographic security protects patient privacy
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Interoperability:</strong> FHIR-compliant data exchange across systems
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Audit Ready:</strong> Complete access logs for compliance audits
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supply Chain -->
+    <section id="supply-chain" class="use-case-detail">
+        <div class="container">
+            <div class="use-case-header">
+                <div class="use-case-icon-large">📦</div>
+                <h2>Supply Chain Tracking & Verification</h2>
+                <p class="lead">
+                    Track products with cryptographic proof of authenticity and immutable transaction
+                    records across multiple partners and jurisdictions.
+                </p>
+            </div>
+
+            <div class="use-case-content">
+                <div class="challenge-solution">
+                    <div class="challenge">
+                        <h3>The Challenge</h3>
+                        <p>
+                            Global supply chains involve multiple parties and need to:
+                        </p>
+                        <ul>
+                            <li>Track product provenance and authenticity</li>
+                            <li>Prevent counterfeiting and fraud</li>
+                            <li>Ensure transparency across partners</li>
+                            <li>Verify compliance with regulations</li>
+                            <li>Provide tamper-proof records</li>
+                        </ul>
+                    </div>
+
+                    <div class="solution">
+                        <h3>The Sorcha Solution</h3>
+                        <p>
+                            Blockchain-like supply chain tracking with:
+                        </p>
+                        <ul>
+                            <li>Cryptographic product fingerprints</li>
+                            <li>Immutable transaction history</li>
+                            <li>Multi-party signature verification</li>
+                            <li>Real-time provenance tracking</li>
+                            <li>Automated compliance verification</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="blueprint-example">
+                    <h3>Blueprint Example: Product Provenance Tracking</h3>
+                    <div class="code-block">
+                        <pre><code>var supplyChainPipeline = Blueprint.Create("ProductProvenanceTracking")
+    // Receive product events
+    .AddSource&lt;SupplyChainEvent&gt;(config => config
+        .FromIoTDevices("warehouse-sensors")
+        .FromPartnerAPIs("supplier-systems")
+        .WithDeduplication())
+
+    // Validate event authenticity
+    .Validate&lt;SupplyChainEvent&gt;(validation => validation
+        .VerifyPartnerSignature()
+        .CheckTimestampValidity()
+        .ValidateEventSequence())
+
+    // Create cryptographic fingerprint
+    .Transform&lt;SupplyChainEvent, SignedEvent&gt;(event =>
+        event
+            .GenerateProductFingerprint()
+            .CaptureLocationData()
+            .RecordEnvironmentalConditions())
+
+    // Multi-party signing
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.NISTP256)
+        .RequireMultipleSignatures()
+        .FromParty("manufacturer")
+        .FromParty("logistics-provider")
+        .FromParty("retailer"))
+
+    // Verify against regulations
+    .Transform&lt;SignedEvent, VerifiedEvent&gt;(event =>
+        event
+            .CheckImportCompliance()
+            .VerifyCertifications()
+            .ValidateCustomsDocuments())
+
+    // Create immutable ledger entry
+    .Audit(audit => audit
+        .CreateLedgerEntry()
+        .WithBlockchainHash()
+        .LinkToPreviousEvent()
+        .StoreInDistributedLedger())
+
+    // Route based on event type
+    .Route(routing => routing
+        .When(e => e.Type == "Manufacturing")
+            .ToDestination("production-ledger")
+        .When(e => e.Type == "Shipment")
+            .ToDestination("logistics-tracking")
+        .When(e => e.Type == "Quality")
+            .ToDestination("quality-assurance")
+        .When(e => e.Type == "Delivery")
+            .ToDestination("customer-notification"))
+
+    // Publish to stakeholders
+    .Publish(notification => notification
+        .ToCustomer("shipment-tracking-update")
+        .ToPartners("supply-chain-event")
+        .ToCompliance("regulatory-report"))
+
+    // Detect anomalies
+    .OnAnomaly(anomaly => anomaly
+        .When(a => a.TemperatureExceedsThreshold)
+            .Alert("cold-chain-violation")
+        .When(a => a.UnauthorizedLocationChange)
+            .Alert("potential-theft")
+        .LogAndEscalate())
+
+    .Build();</code></pre>
+                    </div>
+                </div>
+
+                <div class="benefits">
+                    <h3>Business Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <strong>Counterfeit Prevention:</strong> Cryptographic verification stops fake products
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Full Transparency:</strong> Complete product journey visible to all parties
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Regulatory Compliance:</strong> Automated verification of import/export rules
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Customer Trust:</strong> Provable authenticity increases brand value
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Data -->
+    <section id="research" class="use-case-detail alt-bg">
+        <div class="container">
+            <div class="use-case-header">
+                <div class="use-case-icon-large">🔬</div>
+                <h2>Research Data Collaboration</h2>
+                <p class="lead">
+                    Secure collaboration on sensitive research data with provenance tracking,
+                    access control, and reproducibility guarantees.
+                </p>
+            </div>
+
+            <div class="use-case-content">
+                <div class="challenge-solution">
+                    <div class="challenge">
+                        <h3>The Challenge</h3>
+                        <p>
+                            Research institutions need to collaborate on sensitive data while:
+                        </p>
+                        <ul>
+                            <li>Protecting intellectual property</li>
+                            <li>Tracking data provenance and lineage</li>
+                            <li>Ensuring reproducibility of results</li>
+                            <li>Managing multi-institutional access</li>
+                            <li>Complying with data sharing agreements</li>
+                        </ul>
+                    </div>
+
+                    <div class="solution">
+                        <h3>The Sorcha Solution</h3>
+                        <p>
+                            Secure research data pipelines with:
+                        </p>
+                        <ul>
+                            <li>Cryptographic data provenance tracking</li>
+                            <li>Fine-grained access control</li>
+                            <li>Immutable analysis audit trails</li>
+                            <li>Reproducible computational workflows</li>
+                            <li>Secure multi-party computation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="blueprint-example">
+                    <h3>Blueprint Example: Collaborative Research Pipeline</h3>
+                    <div class="code-block">
+                        <pre><code>var researchPipeline = Blueprint.Create("SecureResearchCollaboration")
+    // Receive research data
+    .AddSource&lt;ResearchDataset&gt;(config => config
+        .FromDataRepository("institutional-storage")
+        .WithEncryption(EncryptionType.AES256)
+        .RequireAuthentication())
+
+    // Track data provenance
+    .Transform&lt;ResearchDataset, TrackedDataset&gt;(data =>
+        data
+            .CaptureMetadata()
+            .RecordDataLineage()
+            .GenerateDatasetFingerprint()
+            .ApplyAccessControls())
+
+    // Validate data integrity
+    .Validate&lt;TrackedDataset&gt;(validation => validation
+        .VerifyDatasetSignature()
+        .CheckForTampering()
+        .ValidateAgainstProtocol())
+
+    // Apply privacy controls
+    .Transform&lt;TrackedDataset, AnonymizedDataset&gt;(data =>
+        data
+            .AnonymizeParticipants()
+            .ApplyDifferentialPrivacy()
+            .RemovePII())
+
+    // Sign with researcher credentials
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.ED25519)
+        .UsingResearcherKey()
+        .IncludeInstitutionalAffiliation()
+        .TimestampAnalysis())
+
+    // Route to analysis pipeline
+    .Route(routing => routing
+        .When(d => d.RequiresStatisticalAnalysis)
+            .ToDestination("stats-compute-cluster")
+        .When(d => d.RequiresMLTraining)
+            .ToDestination("ml-training-pipeline")
+        .When(d => d.RequiresVisualization)
+            .ToDestination("visualization-service"))
+
+    // Create reproducibility package
+    .Audit(audit => audit
+        .RecordAnalysisSteps()
+        .CaptureComputeEnvironment()
+        .StoreProcessingCode()
+        .GenerateReproducibilityHash()
+        .PublishToRegistry())
+
+    // Publish results
+    .Publish(notification => notification
+        .ToResearchTeam("analysis-complete")
+        .ToDataCustodian("usage-report")
+        .ToRepository("results-with-provenance"))
+
+    // Compliance and governance
+    .OnAccess(access => access
+        .CheckDataUseAgreement()
+        .VerifyInstitutionalApproval()
+        .LogAccessForAudit()
+        .EnforceEmbargoPeriod())
+
+    .Build();</code></pre>
+                    </div>
+                </div>
+
+                <div class="benefits">
+                    <h3>Business Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <strong>IP Protection:</strong> Cryptographic proof of data ownership and creation
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Reproducibility:</strong> Complete audit trail ensures research can be verified
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Collaboration:</strong> Secure sharing accelerates multi-institutional research
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Compliance:</strong> Automated enforcement of data use agreements
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Build Your Secure Data Flow?</h2>
+                <p>
+                    Start implementing these use cases with Sorcha today
+                </p>
+                <div class="cta-buttons">
+                    <a href="docs.html" class="btn-primary btn-large">Get Started</a>
+                    <a href="features.html" class="btn-secondary btn-large">Explore Features</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Sorcha</h4>
+                    <p>Secure data flow orchestration platform</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="docs.html">Documentation</a></li>
+                        <li><a href="use-cases.html">Use Cases</a></li>
+                        <li><a href="features.html">Features</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/StuartF303/Sorcha" target="_blank">GitHub</a></li>
+                        <li><a href="https://github.com/StuartF303/Sorcha/issues" target="_blank">Issues</a></li>
+                        <li><a href="https://github.com/StuartF303/Sorcha/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">License</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sorcha Project. Built with .NET 10.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
