@@ -23,19 +23,19 @@
     <section class="page-header">
         <div class="container">
             <h1>Use Cases & Blueprint Examples</h1>
-            <p>See how Sorcha secures data flows across industries</p>
+            <p>Production-ready workflow demonstrations from the Sorcha project</p>
         </div>
     </section>
 
-    <!-- Financial Services -->
-    <section id="financial" class="use-case-detail">
+    <!-- Loan Application Workflow -->
+    <section id="loan-application" class="use-case-detail">
         <div class="container">
             <div class="use-case-header">
-                <div class="use-case-icon-large">🏦</div>
-                <h2>Financial Services & Payment Processing</h2>
+                <div class="use-case-icon-large">📋</div>
+                <h2>Loan Application Workflow</h2>
                 <p class="lead">
-                    Secure payment processing pipelines with cryptographic validation, fraud detection,
-                    and tamper-proof audit trails for PCI-DSS and regulatory compliance.
+                    Multi-step approval workflows with cryptographic signing at each stage.
+                    Automated routing based on loan amount, applicant criteria, and risk assessment.
                 </p>
             </div>
 
@@ -44,96 +44,84 @@
                     <div class="challenge">
                         <h3>The Challenge</h3>
                         <p>
-                            Financial institutions process millions of transactions daily, requiring:
+                            Financial institutions process loan applications through multiple stages:
                         </p>
                         <ul>
-                            <li>End-to-end transaction security and non-repudiation</li>
-                            <li>Real-time fraud detection and prevention</li>
-                            <li>Immutable audit trails for compliance</li>
-                            <li>Multi-party transaction validation</li>
-                            <li>PCI-DSS and SOX compliance</li>
+                            <li>Initial application submission and validation</li>
+                            <li>Credit check and risk assessment</li>
+                            <li>Multi-level approval based on loan amount</li>
+                            <li>Document collection and verification</li>
+                            <li>Final approval and disbursement</li>
+                            <li>Audit trail for regulatory compliance</li>
                         </ul>
                     </div>
 
                     <div class="solution">
                         <h3>The Sorcha Solution</h3>
                         <p>
-                            Sorcha provides cryptographically secured payment pipelines with:
+                            Automated loan application workflow with:
                         </p>
                         <ul>
-                            <li>Digital signatures on every transaction</li>
-                            <li>Real-time validation against fraud patterns</li>
-                            <li>Immutable, cryptographically signed audit logs</li>
-                            <li>Multi-signature authorization workflows</li>
-                            <li>Automated compliance reporting</li>
+                            <li>Cryptographic signing at each workflow stage</li>
+                            <li>JSON Logic-based routing for approval levels</li>
+                            <li>Immutable audit trail in distributed ledger</li>
+                            <li>Real-time status notifications via SignalR</li>
+                            <li>Selective data disclosure to different participants</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="blueprint-example">
-                    <h3>Blueprint Example: Secure Payment Processing</h3>
+                    <h3>Blueprint Example: Loan Application Processing</h3>
                     <div class="code-block">
-                        <pre><code>var paymentPipeline = Blueprint.Create("SecurePaymentProcessing")
-    // Receive payment requests
-    .AddSource&lt;PaymentRequest&gt;(config => config
-        .FromQueue("payment-requests")
+                        <pre><code>var loanWorkflow = Blueprint.Create("LoanApplicationWorkflow")
+    // Receive loan application
+    .AddSource&lt;LoanApplication&gt;(config => config
+        .FromQueue("loan-applications")
         .WithDeduplication())
 
-    // Validate payment data
-    .Validate&lt;PaymentRequest&gt;(validation => validation
-        .AgainstSchema("payment-schema-v2")
-        .RequireFields("amount", "currency", "merchantId")
-        .CheckBusinessRules())
+    // Validate application data
+    .Validate&lt;LoanApplication&gt;(validation => validation
+        .AgainstSchema("loan-application-schema-v1")
+        .CheckRequiredDocuments()
+        .ValidateApplicantInfo())
 
-    // Fraud detection
-    .Transform&lt;PaymentRequest, ValidatedPayment&gt;(payment =>
-        payment
-            .CheckFraudScore()
-            .ValidateCardDetails()
-            .VerifyMerchantStatus())
-
-    // Route based on fraud score
-    .Route(routing => routing
-        .When(p => p.FraudScore > 0.8)
-            .ToDestination("fraud-review-queue")
-        .When(p => p.Amount > 10000)
-            .ToDestination("high-value-review")
-        .Otherwise()
-            .Continue())
-
-    // Cryptographic signing
+    // Sign initial submission
     .Sign(signature => signature
         .WithAlgorithm(CryptoAlgorithm.ED25519)
-        .UsingKey("payment-processor-key")
-        .IncludeTimestamp()
-        .IncludeNonce())
+        .UsingKey("loan-processor-key")
+        .IncludeTimestamp())
 
-    // Process payment
-    .Transform&lt;ValidatedPayment, ProcessedPayment&gt;(payment =>
-        payment
-            .AuthorizeWithBank()
-            .CapturePayment()
-            .UpdateMerchantBalance())
+    // Credit check and risk assessment
+    .Transform&lt;LoanApplication, AssessedLoan&gt;(loan =>
+        loan
+            .PerformCreditCheck()
+            .CalculateRiskScore()
+            .DetermineEligibility())
 
-    // Create immutable audit log
+    // Dynamic routing based on loan amount using JSON Logic
+    .Route(routing => routing
+        .When(loan => loan.Amount < 10000)
+            .ToDestination("auto-approval-queue")
+        .When(loan => loan.Amount >= 10000 && loan.Amount < 50000)
+            .ToDestination("manager-approval-queue")
+        .When(loan => loan.Amount >= 50000)
+            .ToDestination("director-approval-queue")
+        .Otherwise()
+            .ToDestination("manual-review-queue"))
+
+    // Record in distributed ledger
     .Audit(audit => audit
-        .LogTransaction()
-        .WithCryptographicProof()
-        .IncludeSensitiveDataHash()
-        .StoreInLedger())
+        .CreateLedgerEntry()
+        .WithDIDReference()
+        .StoreInRegisterService()
+        .EnableODataQuery())
 
-    // Notify stakeholders
+    // Notify stakeholders via SignalR
     .Publish(notification => notification
-        .ToCustomer("payment-confirmation")
-        .ToMerchant("sale-notification")
-        .ToCompliance("transaction-record"))
-
-    // Error handling
-    .OnError(error => error
-        .RollbackTransaction()
-        .NotifyAdministrator()
-        .LogWithSeverity(LogLevel.Critical)
-        .RetryWithIdempotency())
+        .ToApplicant("application-status-update")
+        .ToProcessor("new-application-assigned")
+        .ToCompliance("application-submitted"))
 
     .Build();</code></pre>
                     </div>
@@ -143,16 +131,16 @@
                     <h3>Business Benefits</h3>
                     <div class="benefits-grid">
                         <div class="benefit-item">
-                            <strong>99.99% Uptime:</strong> Resilient architecture handles peak transaction volumes
+                            <strong>Automated Routing:</strong> JSON Logic ensures applications go to the right approver instantly
                         </div>
                         <div class="benefit-item">
-                            <strong>60% Fraud Reduction:</strong> Real-time detection prevents fraudulent transactions
+                            <strong>Full Transparency:</strong> Every stage cryptographically signed and recorded
                         </div>
                         <div class="benefit-item">
-                            <strong>100% Audit Trail:</strong> Cryptographic proof satisfies auditors and regulators
+                            <strong>Real-Time Updates:</strong> SignalR notifications keep all parties informed
                         </div>
                         <div class="benefit-item">
-                            <strong>Compliance Ready:</strong> PCI-DSS, SOX, and GDPR compliant out-of-the-box
+                            <strong>Compliance Ready:</strong> Complete audit trail with DID URIs for regulatory requirements
                         </div>
                     </div>
                 </div>
@@ -160,15 +148,15 @@
         </div>
     </section>
 
-    <!-- Healthcare -->
-    <section id="healthcare" class="use-case-detail alt-bg">
+    <!-- Expense Approval -->
+    <section id="expense-approval" class="use-case-detail alt-bg">
         <div class="container">
             <div class="use-case-header">
-                <div class="use-case-icon-large">🏥</div>
-                <h2>Healthcare Data Integration</h2>
+                <div class="use-case-icon-large">💰</div>
+                <h2>Expense Approval Workflow</h2>
                 <p class="lead">
-                    HIPAA-compliant patient data workflows with end-to-end encryption, secure inter-system
-                    communication, and complete audit trails.
+                    Dynamic routing with JSON Logic evaluation based on expense amounts.
+                    Automatic escalation and multi-level approval workflows with real-time notifications.
                 </p>
             </div>
 
@@ -177,92 +165,91 @@
                     <div class="challenge">
                         <h3>The Challenge</h3>
                         <p>
-                            Healthcare organizations need to securely exchange patient data between
-                            EHR systems, labs, imaging centers, and insurance providers while:
+                            Organizations need efficient expense approval processes that:
                         </p>
                         <ul>
-                            <li>Maintaining HIPAA compliance</li>
-                            <li>Ensuring patient privacy and data security</li>
-                            <li>Tracking data access for audit purposes</li>
-                            <li>Validating data integrity across systems</li>
-                            <li>Supporting interoperability (HL7 FHIR)</li>
+                            <li>Route expenses to appropriate approvers based on amount</li>
+                            <li>Support multi-level approval chains</li>
+                            <li>Provide real-time status updates</li>
+                            <li>Maintain audit trails for compliance</li>
+                            <li>Handle policy exceptions and escalations</li>
                         </ul>
                     </div>
 
                     <div class="solution">
                         <h3>The Sorcha Solution</h3>
                         <p>
-                            Secure healthcare data exchange with:
+                            Intelligent expense approval with:
                         </p>
                         <ul>
-                            <li>End-to-end encryption of PHI/PII data</li>
-                            <li>Role-based access control with cryptographic keys</li>
-                            <li>Immutable audit logs of all data access</li>
-                            <li>Digital signatures for data authenticity</li>
-                            <li>FHIR-compliant data transformation</li>
+                            <li>JSON Logic expressions for dynamic routing rules</li>
+                            <li>Automatic escalation to higher approval levels</li>
+                            <li>Real-time SignalR notifications to approvers</li>
+                            <li>Cryptographic proof of approval actions</li>
+                            <li>Policy enforcement with schema validation</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="blueprint-example">
-                    <h3>Blueprint Example: Patient Data Exchange</h3>
+                    <h3>Blueprint Example: Expense Approval with Dynamic Routing</h3>
                     <div class="code-block">
-                        <pre><code>var healthDataPipeline = Blueprint.Create("SecurePatientDataExchange")
-    // Receive patient data from EHR
-    .AddSource&lt;PatientRecord&gt;(config => config
-        .FromHL7Feed("ehr-system")
-        .WithEncryption(EncryptionType.AES256))
+                        <pre><code>var expenseWorkflow = Blueprint.Create("ExpenseApprovalWorkflow")
+    // Receive expense submission
+    .AddSource&lt;ExpenseReport&gt;(config => config
+        .FromAPI("expense-submission-endpoint")
+        .WithRealTimeProcessing())
 
-    // Transform to FHIR format
-    .Transform&lt;PatientRecord, FhirPatient&gt;(record =>
-        record
-            .ConvertToFhir()
-            .ValidateAgainstFhirSchema()
-            .NormalizeDemographics())
+    // Validate against expense policy
+    .Validate&lt;ExpenseReport&gt;(validation => validation
+        .AgainstSchema("expense-policy-schema")
+        .CheckReceiptsAttached()
+        .ValidateCategoryRules())
 
-    // Apply privacy controls
-    .Transform&lt;FhirPatient, SecurePatient&gt;(patient =>
-        patient
-            .RedactSensitiveFields()
-            .ApplyConsentRules()
-            .GenerateDeidentificationHash())
-
-    // Cryptographic signing for data integrity
-    .Sign(signature => signature
-        .WithAlgorithm(CryptoAlgorithm.RSA4096)
-        .UsingKey("healthcare-provider-key")
-        .IncludePatientConsent())
-
-    // Route to appropriate systems
+    // JSON Logic routing based on amount and department
     .Route(routing => routing
-        .When(p => p.HasLabOrders)
-            .ToDestination("lab-system")
-        .When(p => p.HasImagingOrders)
-            .ToDestination("imaging-system")
-        .When(p => p.RequiresInsuranceAuth)
-            .ToDestination("insurance-gateway")
-        .Always()
-            .ToDestination("central-health-record"))
+        // Small expenses: auto-approve
+        .When(expense =>
+            expense.Amount < 100)
+            .ToDestination("auto-approve")
 
-    // Audit every access
+        // Medium expenses: manager approval
+        .When(expense =>
+            expense.Amount >= 100 && expense.Amount < 1000)
+            .ToDestination("manager-approval")
+
+        // Large expenses: director approval
+        .When(expense =>
+            expense.Amount >= 1000 && expense.Amount < 5000)
+            .ToDestination("director-approval")
+
+        // Very large: CFO approval required
+        .When(expense =>
+            expense.Amount >= 5000)
+            .ToDestination("cfo-approval")
+
+        // Policy violations: manual review
+        .When(expense =>
+            expense.HasPolicyViolation)
+            .ToDestination("compliance-review"))
+
+    // Sign approval decision
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.ED25519)
+        .UsingApproverKey()
+        .IncludeApprovalReason())
+
+    // Store in distributed ledger
     .Audit(audit => audit
-        .LogDataAccess()
-        .RecordUserIdentity()
-        .RecordPurposeOfUse()
-        .WithCryptographicProof()
-        .StoreForHIPAACompliance(years: 7))
+        .RecordApprovalChain()
+        .WithTimestamp()
+        .StoreInRegisterService())
 
-    // Secure notification
+    // Real-time notifications
     .Publish(notification => notification
-        .ToPatientPortal("encrypted-notification")
-        .ToCareCordinator("care-team-update"))
-
-    // Error handling
-    .OnError(error => error
-        .QuarantineData()
-        .NotifyPrivacyOfficer()
-        .LogSecurityEvent()
-        .EscalateIfCritical())
+        .ToSubmitter("expense-status-change")
+        .ToApprover("new-expense-pending")
+        .ToFinance("expense-approved"))
 
     .Build();</code></pre>
                     </div>
@@ -272,16 +259,16 @@
                     <h3>Business Benefits</h3>
                     <div class="benefits-grid">
                         <div class="benefit-item">
-                            <strong>HIPAA Compliant:</strong> Built-in controls meet all HIPAA requirements
+                            <strong>Policy Enforcement:</strong> JSON Logic ensures expenses follow company policies automatically
                         </div>
                         <div class="benefit-item">
-                            <strong>Zero Data Breaches:</strong> Cryptographic security protects patient privacy
+                            <strong>Fast Processing:</strong> 1.16ms latency enables instant routing decisions
                         </div>
                         <div class="benefit-item">
-                            <strong>Interoperability:</strong> FHIR-compliant data exchange across systems
+                            <strong>Real-Time Updates:</strong> SignalR keeps everyone informed of approval status
                         </div>
                         <div class="benefit-item">
-                            <strong>Audit Ready:</strong> Complete access logs for compliance audits
+                            <strong>Audit Compliance:</strong> Every approval cryptographically signed and recorded
                         </div>
                     </div>
                 </div>
@@ -289,15 +276,15 @@
         </div>
     </section>
 
-    <!-- Supply Chain -->
-    <section id="supply-chain" class="use-case-detail">
+    <!-- Purchase Orders -->
+    <section id="purchase-orders" class="use-case-detail">
         <div class="container">
             <div class="use-case-header">
                 <div class="use-case-icon-large">📦</div>
-                <h2>Supply Chain Tracking & Verification</h2>
+                <h2>Purchase Order Processing</h2>
                 <p class="lead">
-                    Track products with cryptographic proof of authenticity and immutable transaction
-                    records across multiple partners and jurisdictions.
+                    End-to-end procurement workflows with vendor validation, approval chains,
+                    and cryptographic transaction records in a distributed ledger.
                 </p>
             </div>
 
@@ -306,101 +293,87 @@
                     <div class="challenge">
                         <h3>The Challenge</h3>
                         <p>
-                            Global supply chains involve multiple parties and need to:
+                            Purchase order processing involves complex workflows:
                         </p>
                         <ul>
-                            <li>Track product provenance and authenticity</li>
-                            <li>Prevent counterfeiting and fraud</li>
-                            <li>Ensure transparency across partners</li>
-                            <li>Verify compliance with regulations</li>
-                            <li>Provide tamper-proof records</li>
+                            <li>Vendor validation and approval</li>
+                            <li>Multi-step approval based on purchase value</li>
+                            <li>Budget verification and allocation</li>
+                            <li>Goods receipt and invoice matching</li>
+                            <li>Payment authorization and processing</li>
+                            <li>Audit trail for financial compliance</li>
                         </ul>
                     </div>
 
                     <div class="solution">
                         <h3>The Sorcha Solution</h3>
                         <p>
-                            Blockchain-like supply chain tracking with:
+                            Comprehensive purchase order workflow with:
                         </p>
                         <ul>
-                            <li>Cryptographic product fingerprints</li>
-                            <li>Immutable transaction history</li>
-                            <li>Multi-party signature verification</li>
-                            <li>Real-time provenance tracking</li>
-                            <li>Automated compliance verification</li>
+                            <li>Vendor verification with cryptographic validation</li>
+                            <li>Budget checks using JSON Logic rules</li>
+                            <li>Multi-party signature collection</li>
+                            <li>Three-way matching (PO, goods receipt, invoice)</li>
+                            <li>Immutable transaction records with DID URIs</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="blueprint-example">
-                    <h3>Blueprint Example: Product Provenance Tracking</h3>
+                    <h3>Blueprint Example: Purchase Order Workflow</h3>
                     <div class="code-block">
-                        <pre><code>var supplyChainPipeline = Blueprint.Create("ProductProvenanceTracking")
-    // Receive product events
-    .AddSource&lt;SupplyChainEvent&gt;(config => config
-        .FromIoTDevices("warehouse-sensors")
-        .FromPartnerAPIs("supplier-systems")
-        .WithDeduplication())
+                        <pre><code>var purchaseOrderWorkflow = Blueprint.Create("PurchaseOrderProcessing")
+    // Receive PO request
+    .AddSource&lt;PurchaseOrder&gt;(config => config
+        .FromProcurementSystem("po-requests")
+        .WithValidation())
 
-    // Validate event authenticity
-    .Validate&lt;SupplyChainEvent&gt;(validation => validation
-        .VerifyPartnerSignature()
-        .CheckTimestampValidity()
-        .ValidateEventSequence())
-
-    // Create cryptographic fingerprint
-    .Transform&lt;SupplyChainEvent, SignedEvent&gt;(event =>
-        event
-            .GenerateProductFingerprint()
-            .CaptureLocationData()
-            .RecordEnvironmentalConditions())
+    // Validate vendor and budget
+    .Validate&lt;PurchaseOrder&gt;(validation => validation
+        .CheckApprovedVendor()
+        .VerifyBudgetAvailability()
+        .ValidateLineItems())
 
     // Multi-party signing
     .Sign(signature => signature
         .WithAlgorithm(CryptoAlgorithm.NISTP256)
-        .RequireMultipleSignatures()
-        .FromParty("manufacturer")
-        .FromParty("logistics-provider")
-        .FromParty("retailer"))
+        .RequireSignatures()
+        .FromRequester()
+        .FromManager()
+        .FromProcurement())
 
-    // Verify against regulations
-    .Transform&lt;SignedEvent, VerifiedEvent&gt;(event =>
-        event
-            .CheckImportCompliance()
-            .VerifyCertifications()
-            .ValidateCustomsDocuments())
-
-    // Create immutable ledger entry
-    .Audit(audit => audit
-        .CreateLedgerEntry()
-        .WithBlockchainHash()
-        .LinkToPreviousEvent()
-        .StoreInDistributedLedger())
-
-    // Route based on event type
+    // Route based on value and category
     .Route(routing => routing
-        .When(e => e.Type == "Manufacturing")
-            .ToDestination("production-ledger")
-        .When(e => e.Type == "Shipment")
-            .ToDestination("logistics-tracking")
-        .When(e => e.Type == "Quality")
-            .ToDestination("quality-assurance")
-        .When(e => e.Type == "Delivery")
-            .ToDestination("customer-notification"))
+        .When(po => po.TotalValue < 5000)
+            .ToDestination("auto-process")
+        .When(po => po.TotalValue >= 5000 && po.TotalValue < 50000)
+            .ToDestination("director-approval")
+        .When(po => po.TotalValue >= 50000)
+            .ToDestination("executive-approval")
+        .When(po => po.IsInternational)
+            .ToDestination("international-review"))
 
-    // Publish to stakeholders
+    // Store in distributed ledger with DID
+    .Audit(audit => audit
+        .CreatePORecord()
+        .WithDIDURI()
+        .EnableODataQueries()
+        .ChainToPreviousTransaction())
+
+    // Notify all stakeholders
     .Publish(notification => notification
-        .ToCustomer("shipment-tracking-update")
-        .ToPartners("supply-chain-event")
-        .ToCompliance("regulatory-report"))
+        .ToRequester("po-status-update")
+        .ToVendor("po-issued")
+        .ToReceiving("po-goods-pending")
+        .ToAccounts("po-payment-pending"))
 
-    // Detect anomalies
-    .OnAnomaly(anomaly => anomaly
-        .When(a => a.TemperatureExceedsThreshold)
-            .Alert("cold-chain-violation")
-        .When(a => a.UnauthorizedLocationChange)
-            .Alert("potential-theft")
-        .LogAndEscalate())
+    // Handle goods receipt
+    .OnEvent("goods-received", receipt =>
+        receipt
+            .ValidateAgainstPO()
+            .RecordInLedger()
+            .TriggerInvoiceMatching())
 
     .Build();</code></pre>
                     </div>
@@ -410,16 +383,16 @@
                     <h3>Business Benefits</h3>
                     <div class="benefits-grid">
                         <div class="benefit-item">
-                            <strong>Counterfeit Prevention:</strong> Cryptographic verification stops fake products
+                            <strong>Fraud Prevention:</strong> Multi-party signatures and vendor validation prevent unauthorized purchases
                         </div>
                         <div class="benefit-item">
-                            <strong>Full Transparency:</strong> Complete product journey visible to all parties
+                            <strong>Budget Control:</strong> Real-time budget verification ensures spending stays within limits
                         </div>
                         <div class="benefit-item">
-                            <strong>Regulatory Compliance:</strong> Automated verification of import/export rules
+                            <strong>Process Efficiency:</strong> Automated routing and approvals reduce procurement cycle time
                         </div>
                         <div class="benefit-item">
-                            <strong>Customer Trust:</strong> Provable authenticity increases brand value
+                            <strong>Audit Ready:</strong> Complete PO lifecycle recorded in distributed ledger with DID URIs
                         </div>
                     </div>
                 </div>
@@ -427,15 +400,15 @@
         </div>
     </section>
 
-    <!-- Research Data -->
-    <section id="research" class="use-case-detail alt-bg">
+    <!-- Data Disclosure -->
+    <section id="data-disclosure" class="use-case-detail alt-bg">
         <div class="container">
             <div class="use-case-header">
-                <div class="use-case-icon-large">🔬</div>
-                <h2>Research Data Collaboration</h2>
+                <div class="use-case-icon-large">📊</div>
+                <h2>Selective Data Disclosure Workflows</h2>
                 <p class="lead">
-                    Secure collaboration on sensitive research data with provenance tracking,
-                    access control, and reproducibility guarantees.
+                    Control exactly which data participants can access using JSON Pointers (RFC 6901).
+                    Enable secure collaboration with cryptographic guarantees and fine-grained access control.
                 </p>
             </div>
 
@@ -444,99 +417,92 @@
                     <div class="challenge">
                         <h3>The Challenge</h3>
                         <p>
-                            Research institutions need to collaborate on sensitive data while:
+                            Sharing sensitive data requires precise control over:
                         </p>
                         <ul>
-                            <li>Protecting intellectual property</li>
-                            <li>Tracking data provenance and lineage</li>
-                            <li>Ensuring reproducibility of results</li>
-                            <li>Managing multi-institutional access</li>
-                            <li>Complying with data sharing agreements</li>
+                            <li>Which fields each participant can access</li>
+                            <li>Who can see personally identifiable information (PII)</li>
+                            <li>Preventing unauthorized data exposure</li>
+                            <li>Maintaining audit trails of data access</li>
+                            <li>Supporting multi-party collaboration safely</li>
                         </ul>
                     </div>
 
                     <div class="solution">
                         <h3>The Sorcha Solution</h3>
                         <p>
-                            Secure research data pipelines with:
+                            Selective data disclosure using:
                         </p>
                         <ul>
-                            <li>Cryptographic data provenance tracking</li>
-                            <li>Fine-grained access control</li>
-                            <li>Immutable analysis audit trails</li>
-                            <li>Reproducible computational workflows</li>
-                            <li>Secure multi-party computation</li>
+                            <li>JSON Pointers (RFC 6901) for field-level access control</li>
+                            <li>Cryptographic proof of data integrity</li>
+                            <li>Role-based access policies</li>
+                            <li>Immutable disclosure audit trail</li>
+                            <li>Schema validation for disclosed data</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="blueprint-example">
-                    <h3>Blueprint Example: Collaborative Research Pipeline</h3>
+                    <h3>Blueprint Example: Selective Survey Data Sharing</h3>
                     <div class="code-block">
-                        <pre><code>var researchPipeline = Blueprint.Create("SecureResearchCollaboration")
-    // Receive research data
-    .AddSource&lt;ResearchDataset&gt;(config => config
-        .FromDataRepository("institutional-storage")
-        .WithEncryption(EncryptionType.AES256)
-        .RequireAuthentication())
+                        <pre><code>var dataDisclosureWorkflow = Blueprint.Create("SelectiveDataDisclosure")
+    // Receive data disclosure request
+    .AddSource&lt;DisclosureRequest&gt;(config => config
+        .FromAPI("disclosure-requests")
+        .WithAuthentication())
 
-    // Track data provenance
-    .Transform&lt;ResearchDataset, TrackedDataset&gt;(data =>
-        data
-            .CaptureMetadata()
-            .RecordDataLineage()
-            .GenerateDatasetFingerprint()
-            .ApplyAccessControls())
+    // Validate requester permissions
+    .Validate&lt;DisclosureRequest&gt;(validation => validation
+        .CheckRequesterAuthorization()
+        .ValidateAccessPolicy()
+        .VerifyDataOwnerConsent())
 
-    // Validate data integrity
-    .Validate&lt;TrackedDataset&gt;(validation => validation
-        .VerifyDatasetSignature()
-        .CheckForTampering()
-        .ValidateAgainstProtocol())
+    // Apply JSON Pointers for selective disclosure
+    .Transform&lt;DisclosureRequest, FilteredData&gt;(request =>
+        request
+            // Allow researcher to see aggregate data only
+            .When(role => role == "Researcher")
+                .DiscloseFields("/surveyId", "/aggregateResults")
 
-    // Apply privacy controls
-    .Transform&lt;TrackedDataset, AnonymizedDataset&gt;(data =>
-        data
-            .AnonymizeParticipants()
-            .ApplyDifferentialPrivacy()
-            .RemovePII())
+            // Allow data steward to see identifiers but not PII
+            .When(role => role == "DataSteward")
+                .DiscloseFields("/surveyId", "/submissionDate", "/statusCode")
 
-    // Sign with researcher credentials
+            // Allow principal investigator to see all non-PII fields
+            .When(role => role == "PrincipalInvestigator")
+                .DiscloseFields("/surveyId", "/responses", "/demographics")
+                .ExcludeFields("/personalInfo/name", "/personalInfo/email")
+
+            // Data owner sees everything
+            .When(role => role == "DataOwner")
+                .DiscloseAll())
+
+    // Sign disclosed data
     .Sign(signature => signature
         .WithAlgorithm(CryptoAlgorithm.ED25519)
-        .UsingResearcherKey()
-        .IncludeInstitutionalAffiliation()
-        .TimestampAnalysis())
+        .IncludeDisclosurePolicy()
+        .IncludeAccessTimestamp())
 
-    // Route to analysis pipeline
-    .Route(routing => routing
-        .When(d => d.RequiresStatisticalAnalysis)
-            .ToDestination("stats-compute-cluster")
-        .When(d => d.RequiresMLTraining)
-            .ToDestination("ml-training-pipeline")
-        .When(d => d.RequiresVisualization)
-            .ToDestination("visualization-service"))
-
-    // Create reproducibility package
+    // Record disclosure in ledger
     .Audit(audit => audit
-        .RecordAnalysisSteps()
-        .CaptureComputeEnvironment()
-        .StoreProcessingCode()
-        .GenerateReproducibilityHash()
-        .PublishToRegistry())
+        .RecordDataAccess()
+        .WithDIDReference()
+        .LogDisclosedFields()
+        .LogRequesterIdentity()
+        .EnableComplianceQuery())
 
-    // Publish results
+    // Notify data custodian
     .Publish(notification => notification
-        .ToResearchTeam("analysis-complete")
-        .ToDataCustodian("usage-report")
-        .ToRepository("results-with-provenance"))
+        .ToDataOwner("data-accessed")
+        .ToRequester("data-disclosure-granted")
+        .ToCompliance("disclosure-logged"))
 
-    // Compliance and governance
-    .OnAccess(access => access
-        .CheckDataUseAgreement()
-        .VerifyInstitutionalApproval()
-        .LogAccessForAudit()
-        .EnforceEmbargoPeriod())
+    // Validate disclosed data integrity
+    .Validate&lt;FilteredData&gt;(validation => validation
+        .AgainstSchema("filtered-data-schema")
+        .EnsureNoPIILeakage()
+        .VerifySignature())
 
     .Build();</code></pre>
                     </div>
@@ -546,16 +512,145 @@
                     <h3>Business Benefits</h3>
                     <div class="benefits-grid">
                         <div class="benefit-item">
-                            <strong>IP Protection:</strong> Cryptographic proof of data ownership and creation
+                            <strong>Privacy Protection:</strong> JSON Pointers ensure only authorized fields are shared
                         </div>
                         <div class="benefit-item">
-                            <strong>Reproducibility:</strong> Complete audit trail ensures research can be verified
+                            <strong>Compliance:</strong> GDPR, HIPAA-ready with field-level access control and audit trails
                         </div>
                         <div class="benefit-item">
-                            <strong>Collaboration:</strong> Secure sharing accelerates multi-institutional research
+                            <strong>Collaboration:</strong> Enable secure multi-party research and analysis
                         </div>
                         <div class="benefit-item">
-                            <strong>Compliance:</strong> Automated enforcement of data use agreements
+                            <strong>Transparency:</strong> Complete audit trail of who accessed what data when
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Step Surveys -->
+    <section id="surveys" class="use-case-detail">
+        <div class="container">
+            <div class="use-case-header">
+                <div class="use-case-icon-large">📝</div>
+                <h2>Multi-Step Survey Collection</h2>
+                <p class="lead">
+                    Complex survey workflows with conditional logic, data validation,
+                    and cryptographic protection of respondent data.
+                </p>
+            </div>
+
+            <div class="use-case-content">
+                <div class="challenge-solution">
+                    <div class="challenge">
+                        <h3>The Challenge</h3>
+                        <p>
+                            Research and customer feedback surveys require:
+                        </p>
+                        <ul>
+                            <li>Multi-step conditional flows based on responses</li>
+                            <li>Data validation at each step</li>
+                            <li>Protection of sensitive respondent information</li>
+                            <li>Progress tracking and resume capability</li>
+                            <li>Aggregate analysis while preserving privacy</li>
+                        </ul>
+                    </div>
+
+                    <div class="solution">
+                        <h3>The Sorcha Solution</h3>
+                        <p>
+                            Intelligent survey workflows with:
+                        </p>
+                        <ul>
+                            <li>JSON Logic for conditional question flows</li>
+                            <li>JSON Schema validation for each response</li>
+                            <li>Encrypted storage of sensitive responses</li>
+                            <li>State management for partial submissions</li>
+                            <li>Selective disclosure for different analysts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="blueprint-example">
+                    <h3>Blueprint Example: Multi-Step Survey Workflow</h3>
+                    <div class="code-block">
+                        <pre><code>var surveyWorkflow = Blueprint.Create("MultiStepSurveyCollection")
+    // Receive survey response
+    .AddSource&lt;SurveyResponse&gt;(config => config
+        .FromWebForm("survey-endpoint")
+        .WithSessionManagement())
+
+    // Validate current step
+    .Validate&lt;SurveyResponse&gt;(validation => validation
+        .AgainstSchema("survey-step-schema")
+        .CheckRequiredFields()
+        .ValidateResponseTypes())
+
+    // Conditional routing based on responses
+    .Route(routing => routing
+        // Basic demographic questions for everyone
+        .When(response => response.Step == 1)
+            .ToDestination("demographic-processing")
+
+        // Conditional follow-up based on age
+        .When(response =>
+            response.Step == 2 && response.Age < 25)
+            .ToDestination("youth-specific-questions")
+
+        .When(response =>
+            response.Step == 2 && response.Age >= 25)
+            .ToDestination("adult-specific-questions")
+
+        // Income-based routing
+        .When(response =>
+            response.Step == 3 && response.Income > 100000)
+            .ToDestination("high-income-questions")
+
+        // Final step: thank you
+        .When(response => response.IsComplete)
+            .ToDestination("completion-processing"))
+
+    // Encrypt sensitive fields
+    .Transform&lt;SurveyResponse, ProtectedResponse&gt;(response =>
+        response
+            .EncryptField("/personalInfo/email")
+            .EncryptField("/personalInfo/phone")
+            .HashField("/personalInfo/postalCode"))
+
+    // Sign and store
+    .Sign(signature => signature
+        .WithAlgorithm(CryptoAlgorithm.ED25519)
+        .IncludeSessionId())
+
+    .Audit(audit => audit
+        .RecordSubmission()
+        .WithAnonymizedIdentifier()
+        .EnableAggregateAnalysis())
+
+    // Notify researcher of completion
+    .Publish(notification => notification
+        .ToRespondent("survey-progress-saved")
+        .ToResearcher("new-response-received"))
+
+    .Build();</code></pre>
+                    </div>
+                </div>
+
+                <div class="benefits">
+                    <h3>Business Benefits</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <strong>Smart Routing:</strong> JSON Logic creates personalized survey paths
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Data Quality:</strong> Schema validation ensures clean, analyzable data
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Privacy First:</strong> Encryption and selective disclosure protect respondents
+                        </div>
+                        <div class="benefit-item">
+                            <strong>Research Ready:</strong> Aggregate analysis without compromising individual privacy
                         </div>
                     </div>
                 </div>
@@ -567,13 +662,13 @@
     <section class="cta-section">
         <div class="container">
             <div class="cta-content">
-                <h2>Ready to Build Your Secure Data Flow?</h2>
+                <h2>Ready to Build Your Workflow?</h2>
                 <p>
-                    Start implementing these use cases with Sorcha today
+                    These production-ready examples are running in the Sorcha project today
                 </p>
                 <div class="cta-buttons">
                     <a href="docs.html" class="btn-primary btn-large">Get Started</a>
-                    <a href="features.html" class="btn-secondary btn-large">Explore Features</a>
+                    <a href="https://github.com/StuartF303/Sorcha" target="_blank" class="btn-secondary btn-large">View Source Code</a>
                 </div>
             </div>
         </div>
