@@ -1,0 +1,23 @@
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">⚡</span>
+                <span>Sorcha</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html"{{#if isActive.home}} class="active"{{/if}}>Home</a></li>
+                <li><a href="features.html"{{#if isActive.features}} class="active"{{/if}}>Features</a></li>
+                <li><a href="use-cases.html"{{#if isActive.useCases}} class="active"{{/if}}>Use Cases</a></li>
+                <li><a href="docs.html"{{#if isActive.docs}} class="active"{{/if}}>Documentation</a></li>
+                <li><a href="https://github.com/StuartF303/Sorcha" target="_blank" class="btn-primary">GitHub</a></li>
+            </ul>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</nav>

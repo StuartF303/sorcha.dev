@@ -1,0 +1,26 @@
+{
+  "name": "sorcha.dev",
+  "version": "1.0.0",
+  "description": "Official website for the Sorcha project - A modern .NET 10 blueprint execution engine",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "dev": "npm run build && npm run serve",
+    "serve": "npx http-server dist -p 8000 -o",
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\""
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": [
+    "sorcha",
+    "data-flow",
+    "orchestration",
+    "cryptography"
+  ],
+  "author": "Sorcha Project",
+  "license": "SEE LICENSE IN LICENSE FILE"
+}

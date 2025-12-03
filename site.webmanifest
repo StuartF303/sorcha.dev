@@ -1,0 +1,15 @@
+{
+  "name": "Sorcha - Secure Data Flow Orchestration",
+  "short_name": "Sorcha",
+  "description": "Modern .NET 10 blueprint execution engine for secure data flow orchestration",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
