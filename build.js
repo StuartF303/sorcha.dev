@@ -6,7 +6,7 @@ const Handlebars = require('handlebars');
 const TEMPLATES_DIR = path.join(__dirname, 'src', 'templates');
 const PARTIALS_DIR = path.join(__dirname, 'src', 'partials');
 const DIST_DIR = path.join(__dirname, 'dist');
-const STATIC_ASSETS = ['styles.css', 'script.js', 'CNAME', 'vercel.json', 'netlify.toml', 'favicon.svg', 'site.webmanifest'];
+const STATIC_ASSETS = ['styles.css', 'script.js', 'CNAME', 'vercel.json', 'netlify.toml', 'favicon.svg', 'site.webmanifest', '.well-known/apple-app-site-association'];
 
 // Register Handlebars helpers
 Handlebars.registerHelper('eq', function(a, b) {
@@ -48,6 +48,9 @@ function copyStaticAssets() {
     const destPath = path.join(DIST_DIR, asset);
 
     if (fs.existsSync(sourcePath)) {
+      // Support nested assets (e.g. .well-known/apple-app-site-association) by
+      // ensuring the destination subdirectory exists before copying.
+      fs.mkdirSync(path.dirname(destPath), { recursive: true });
       fs.copyFileSync(sourcePath, destPath);
       console.log(`✓ Copied: ${asset}`);
     }
